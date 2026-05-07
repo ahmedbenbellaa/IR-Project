@@ -1,0 +1,5 @@
+wikipedia-api>=0.6.0
+nltk>=3.8
+pyarabic>=0.6.3
+numpy>=1.24
+langdetect>=1.0.9
