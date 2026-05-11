@@ -23,11 +23,7 @@ def _safe_log10(x: float) -> float:
 
 
 def _read_file(path: str) -> str | None:
-    """
-    Read a UTF-8 text file.
-    Returns None and logs a warning on any encoding / IO error.
-    """
-    try:
+        try:
         with open(path, encoding="utf-8") as fh:
             return fh.read()
     except (UnicodeDecodeError, OSError) as exc:
@@ -67,7 +63,7 @@ def build_index(corpus_dirs: dict[str, str] | None = None) -> dict:
 
             text = _read_file(filepath)
             if text is None:
-                continue               
+                continue   # skipped with warning inside _read_file            
 
             lang_map[doc_id] = lang
 
@@ -95,13 +91,13 @@ def build_index(corpus_dirs: dict[str, str] | None = None) -> dict:
         logger.warning("No documents were loaded. Returning empty index.")
         return _empty_index()
 
-    N = docs_loaded  
+    N = docs_loaded  # total document count
 
   
     idf_table: dict[str, float] = {}
     for term, postings in positional_index.items():
-        df = len(postings)                
-        idf_table[term] = _safe_log10(N / df)  
+        df = len(postings)   # number of docs containing term             
+        idf_table[term] = _safe_log10(N / df)  # 0 when df == N (valid)
 
    
     doc_norms: dict[str, float] = {}
@@ -111,7 +107,7 @@ def build_index(corpus_dirs: dict[str, str] | None = None) -> dict:
             for term, tf_weight in term_tf.items()
         )
         doc_norms[doc_id] = math.sqrt(squared_sum) if squared_sum > 0 else 0.0
-
+# Convert defaultdicts to plain dicts for JSON serialisation
     
     plain_index = {
         term: dict(postings)
@@ -152,10 +148,7 @@ def save_index(index: dict, path: str = INDEX_CACHE) -> None:
 
 
 def load_index(path: str = INDEX_CACHE) -> dict | None:
-    """
-    Load the index from a JSON cache file.
-    Returns None if the file does not exist or is corrupt.
-    """
+    
     if not os.path.isfile(path):
         return None
     try:
