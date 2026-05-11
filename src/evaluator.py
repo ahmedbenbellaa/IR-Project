@@ -1,26 +1,14 @@
-# evaluator.py
-# Measures search engine accuracy using Precision and Recall.
-# You define the "ground truth" (relevant docs) for each test query,
-# then run the engine and compare.
+
 
 from searcher import search
 from tfidf    import rank
 
 
-# ═════════════════════════════════════════════════════════════
+
 # METRICS
-# ═════════════════════════════════════════════════════════════
 
 def precision(retrieved, relevant):
-    """
-    Precision = |Retrieved ∩ Relevant| / |Retrieved|
-
-    "Of the docs we returned, how many are actually correct?"
-
-    Edge cases handled:
-    - Empty retrieved set → return 0.0 (cannot divide by zero)
-    - Empty relevant set  → return 0.0 (nothing is correct)
-    """
+  
     if not retrieved:
         return 0.0
     if not relevant:
@@ -33,15 +21,7 @@ def precision(retrieved, relevant):
 
 
 def recall(retrieved, relevant):
-    """
-    Recall = |Retrieved ∩ Relevant| / |Relevant|
-
-    "Of all the correct docs that exist, how many did we find?"
-
-    Edge cases handled:
-    - Empty relevant set  → return 0.0 (nothing to recall)
-    - Empty retrieved set → return 0.0
-    """
+  
     if not relevant:
         return 0.0
     if not retrieved:
@@ -54,35 +34,13 @@ def recall(retrieved, relevant):
 
 
 def f1_score(p, r):
-    """
-    F1 = 2 * (Precision * Recall) / (Precision + Recall)
-
-    Harmonic mean of precision and recall.
-
-    Edge cases handled:
-    - Both p and r are 0 → return 0.0
-    """
+ 
     if p + r == 0:
         return 0.0
     return 2 * p * r / (p + r)
 
 
-# ═════════════════════════════════════════════════════════════
-# GROUND TRUTH
-# ═════════════════════════════════════════════════════════════
 
-# Define your test queries and the doc_ids that are genuinely relevant.
-# You must judge these manually by reading the corpus documents.
-#
-# FORMAT:
-#   {
-#     "query string": {
-#         "relevant": ["doc_id_1", "doc_id_2", ...],
-#         "language": "english" | "arabic" | None (auto-detect)
-#     }
-#   }
-#
-# Update this dict after you build your corpus and inspect the documents.
 
 GROUND_TRUTH = {
     "climate change": {
@@ -109,30 +67,12 @@ GROUND_TRUTH = {
 }
 
 
-# ═════════════════════════════════════════════════════════════
+
 # EVALUATION RUNNER
-# ═════════════════════════════════════════════════════════════
+
 
 def evaluate(index, ground_truth=None, top_n=10):
-    """
-    Run every test query, compute Precision & Recall, and print a report.
-
-    Parameters
-    ----------
-    index        : dict  – from indexer.get_index()
-    ground_truth : dict  – custom ground truth (defaults to GROUND_TRUTH above)
-    top_n        : int   – how many ranked results to consider
-
-    Returns
-    -------
-    list of dicts, one per query, with keys:
-        query, retrieved, relevant, precision, recall, f1
-
-    Edge cases handled:
-    - Empty ground truth        → warn and return []
-    - Query returns no results  → precision=0, recall=0
-    - Ground truth has no relevant docs → skip that query with a warning
-    """
+ 
     if ground_truth is None:
         ground_truth = GROUND_TRUTH
 
@@ -178,7 +118,7 @@ def evaluate(index, ground_truth=None, top_n=10):
             "f1":        f1,
         })
 
-        # ── Print per-query report ─────────────────────────────
+        # ── Print per-query report 
         print(f"\n  Query     : {query_str}")
         print(f"  Language  : {search_result['language']}")
         print(f"  Retrieved : {sorted(retrieved) if retrieved else '(none)'}")
@@ -190,7 +130,7 @@ def evaluate(index, ground_truth=None, top_n=10):
         if search_result["missing_terms"]:
             print(f"  OOV terms : {search_result['missing_terms']}")
 
-    # ── Macro averages ─────────────────────────────────────────
+    # ── Macro averages 
     if results:
         avg_p  = sum(r["precision"] for r in results) / len(results)
         avg_r  = sum(r["recall"]    for r in results) / len(results)
@@ -205,9 +145,8 @@ def evaluate(index, ground_truth=None, top_n=10):
     return results
 
 
-# ═════════════════════════════════════════════════════════════
-# QUICK SELF-TEST  (run: python evaluator.py)
-# ═════════════════════════════════════════════════════════════
+
+#demo
 if __name__ == "__main__":
     from indexer import get_or_build_index
 

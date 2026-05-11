@@ -1,17 +1,4 @@
-"""
-searcher.py
-Query processing and retrieval using the Positional Inverted Index.
 
-Supports:
-    - Boolean (AND) retrieval      →  climate change
-    - Phrase queries               →  "climate change"
-    - Proximity queries            →  employment /3 place
-    - Wildcard queries             →  comput*
-
-Public API
-----------
-    search(query, index, language=None) -> dict
-"""
 
 import re
 import logging
@@ -20,9 +7,9 @@ from preprocessing import preprocess, detect_language
 logger = logging.getLogger(__name__)
 
 
-# ═════════════════════════════════════════════════════════════
+
 # QUERY-TYPE DETECTION
-# ═════════════════════════════════════════════════════════════
+
 
 def _detect_query_type(query: str) -> str:
     """
@@ -44,9 +31,7 @@ def _detect_query_type(query: str) -> str:
     return "boolean"
 
 
-# ═════════════════════════════════════════════════════════════
 # BOOLEAN (AND) RETRIEVAL
-# ═════════════════════════════════════════════════════════════
 
 def _boolean_search(tokens, positional_index, lang_map, language):
     """
@@ -73,16 +58,10 @@ def _boolean_search(tokens, positional_index, lang_map, language):
     return sorted(result_set) if result_set else []
 
 
-# ═════════════════════════════════════════════════════════════
 # PHRASE SEARCH
-# ═════════════════════════════════════════════════════════════
 
 def _phrase_search(tokens, positional_index, lang_map, language):
-    """
-    Find documents where *tokens* appear as consecutive positions.
 
-    Uses the positional index to verify exact adjacency.
-    """
     if not tokens:
         return []
     if len(tokens) == 1:
@@ -113,17 +92,11 @@ def _phrase_search(tokens, positional_index, lang_map, language):
     return sorted(results)
 
 
-# ═════════════════════════════════════════════════════════════
+
 # PROXIMITY SEARCH
-# ═════════════════════════════════════════════════════════════
 
 def _proximity_search(tokens, distance, positional_index, lang_map, language):
-    """
-    Find documents where two terms appear within *distance* positions
-    of each other (in either order).
 
-    Falls back to boolean search if fewer than 2 tokens are supplied.
-    """
     if len(tokens) < 2:
         return _boolean_search(tokens, positional_index, lang_map, language)
 
@@ -155,20 +128,12 @@ def _proximity_search(tokens, distance, positional_index, lang_map, language):
     return sorted(results)
 
 
-# ═════════════════════════════════════════════════════════════
+
 # WILDCARD SEARCH
-# ═════════════════════════════════════════════════════════════
+
 
 def _wildcard_search(pattern, positional_index, lang_map, language):
-    """
-    Match index terms against a shell-style wildcard pattern.
 
-    Supported wildcards:
-        *  →  any number of characters
-        ?  →  exactly one character
-
-    Example: comput* matches compute, computer, computing, ...
-    """
     lang_docs = {doc_id for doc_id, lang in lang_map.items()
                  if lang == language}
 
@@ -190,27 +155,7 @@ def _wildcard_search(pattern, positional_index, lang_map, language):
 # ═════════════════════════════════════════════════════════════
 
 def search(query, index, language=None):
-    """
-    Process a user query and return matching documents.
 
-    Parameters
-    ----------
-    query    : raw query string from the user.
-    index    : full index dict from indexer.get_or_build_index().
-               Must contain: positional_index, tf_table, idf_table,
-               doc_norms, lang_map.
-    language : "english" or "arabic".  Auto-detected from the query
-               text when None.
-
-    Returns
-    -------
-    dict with keys:
-        language      : str   – detected / forced language
-        query_type    : str   – "boolean" | "phrase" | "proximity" | "wildcard"
-        query_tokens  : list  – preprocessed tokens sent to the index
-        matches       : list  – doc_ids of matching documents
-        missing_terms : list  – tokens not found in the index (OOV)
-    """
     # ── empty / blank guard ────────────────────────────────────────────────
     if not query or not query.strip():
         return {
@@ -291,9 +236,9 @@ def search(query, index, language=None):
     }
 
 
-# ═════════════════════════════════════════════════════════════
+
 # CLI SELF-TEST  (run: python searcher.py)
-# ═════════════════════════════════════════════════════════════
+
 if __name__ == "__main__":
     from indexer import get_or_build_index
 

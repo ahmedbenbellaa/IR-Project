@@ -1,6 +1,4 @@
-# main.py
-# Command-line interface for the Bilingual Search Engine.
-# Ties together: indexer, searcher, tfidf, spell_check, evaluator.
+
 
 import os
 import sys
@@ -21,9 +19,10 @@ from evaluator     import evaluate
 from preprocessing import detect_language
 
 
-# ═════════════════════════════════════════════════════════════
+
+
 # DISPLAY HELPERS
-# ═════════════════════════════════════════════════════════════
+
 
 DIVIDER = "=" * 55
 THIN    = "-" * 55
@@ -56,7 +55,7 @@ def print_results(ranked, search_result, index):
     print(f"  Type     : {qtype}")
     print(f"  Tokens   : {tokens}")
 
-    # ── Spelling suggestions for OOV terms ────────────────────
+    # ── Spelling suggestions for OOV terms 
     if missing:
         for term in missing:
             suggestions = get_suggestions(term, index)
@@ -66,7 +65,7 @@ def print_results(ranked, search_result, index):
             else:
                 print(f"\n  ❌ '{term}' not found — no suggestion available.")
 
-    # ── Results ───────────────────────────────────────────────
+    # ── Results 
     print()
     if not ranked:
         print("  No results found.")
@@ -85,12 +84,7 @@ def print_results(ranked, search_result, index):
 
 
 def resolve_language(raw_query):
-    """
-    Auto-detect language from the query text.
-    If the result is ambiguous (nearly equal counts), ask the user.
 
-    Returns "english" or "arabic".
-    """
     lang = detect_language(raw_query)
     return lang
 

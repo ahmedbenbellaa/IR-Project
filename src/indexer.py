@@ -23,7 +23,7 @@ def _safe_log10(x: float) -> float:
 
 
 def _read_file(path: str) -> str | None:
-        try:
+    try:
         with open(path, encoding="utf-8") as fh:
             return fh.read()
     except (UnicodeDecodeError, OSError) as exc:
