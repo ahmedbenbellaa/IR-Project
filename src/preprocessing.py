@@ -185,14 +185,49 @@ def remove_arabic_stopwords(tokens):
         return []
     return [t for t in tokens if t not in ARABIC_STOP_WORDS]
 
+PREFIXES = [
+    "وال", "بال", "كال", "فال", "لل",
+    "فل", "فس", "وس", "وب", "لت", "بت",
+    "یت", "مت", "وت", "ست", "نت", "لم",
+    "بم", "وم", "فم", "كم", "وي", "لي",
+    "في", "وا", "فا", "لا", "با",
+    "ال", "و", "ف", "ب", "ك", "ل",
+]
 
+SUFFIXES = [
+    "كم", "كن", "ھم", "ھن", "تم", "تن",
+    "ني", "یا", "ما", "وه", "تي", "تھ",
+    "ها", "ان", "ات", "ون", "ین", "یه",
+    "یة", "وا", "نا", "وه",
+    "ه", "ي", "ا", "ن",
+]
+
+def extended10_stem(word):
+    if not word or len(word) <= 2:
+        return word
+
+    
+    for prefix in PREFIXES:
+        if word.startswith(prefix):
+            remaining = word[len(prefix):]
+            if len(remaining) >= 3:  
+                word = remaining
+                break
+    for suffix in SUFFIXES:
+        if word.endswith(suffix):
+            remaining = word[:-len(suffix)]
+            if len(remaining) >= 3: 
+                word = remaining
+                break
+
+    return word
 def stem_arabic(word):
 
     if not word:
         return ""
     if len(word) <= 3:
         return word
-
+    #return extended10_stem(word)
     # ISRI stemmer
     if NLTK_STEMMERS_AVAILABLE and ARABIC_STEMMER_AVAILABLE:
         try:
@@ -234,7 +269,7 @@ def preprocess(text, language):
     if not text:
         return []
     
-    lang = language.lower().strip() if language else ""
+    lang = language.lower().strip() if language else detect_language(text)
 
     if lang == "english":
         return preprocess_english(text)
@@ -269,15 +304,32 @@ if __name__ == "__main__":
 
     ar_samples = [
         "الطلاب يدرسون في الجامعات المصرية",
-        "تغير المناخ يؤثر على الاقتصاد العالمي محمد كان يحب المهارات و المهارة حب ",
+        "تغير المناخ يؤثر على الاقتصاد العالمي محمد كان يحب المهارات و المهارة حب  طاقة",
         "",          # edge: empty
         None,        # edge: None
         "في على من", # edge: all stop words
-    ]
-
+]
+    test=  [
+        
+"قوانين اللعبة",
+        "تسهر الفيفا على تطبيق قوانين اللعبة",
+        "على الرغم من أنها ذُكرت ووُضعت من قبل مجلس الاتحاد الدولي لكرة القدم",          # edge: empty
+        None,        # edge: None
+        "في على من", # edge: all stop words
+]
+    '''
+قوانين اللعبة
+هناك 17 قانونًا رسميًّا أصليًّا للعبة، كل منها يتضمن شروطًا ومبادئ توجيهية. صُممت هذه القوانين لتناسب جميع المستويات من كرة القدم، لكن مع بعض التعديلات لتناسب بعض الفئات من الناس مثل الأطفال والناشئين والنساء والناس الذين يعانون من إعاقات جسدية. وهذه القوانين غالبًا ما تصاغ في عبارات عامة، مما يتيح المرونة في تطبيقها اعتمادًا على طبيعة اللعبة. تسهر الفيفا على تطبيق قوانين اللعبة، على الرغم من أنها ذُكرت ووُضعت من قبل مجلس الاتحاد الدولي لكرة القدم (IFAB). بالإضافة إلى القوانين السبعة عشر، تلعب قرارات وتوجيهات مجلس الإتحاد أيضًا دورًا في تنظيم هذه الرياضة.
+'''
     print("── Arabic Pipeline ───────────────────────────────────")
-    for s in ar_samples:
+    '''for s in ar_samples:
         result = preprocess(s, "arabic")
+        print(f"  IN : {repr(s)}")
+        print(f"  OUT: {result}")
+        print()
+        '''
+    for s in test:
+        result = preprocess(s, "")
         print(f"  IN : {repr(s)}")
         print(f"  OUT: {result}")
         print()
